@@ -15,18 +15,23 @@ function Toggle({children}) {
   const [on, setOn] = React.useState(false)
   const toggle = () => setOn(!on)
 
-// what we did here was instead of returning a React.Children.map of all the children and forwarding along the props 
-// by making clones of those children
-// and then we render the provider with the value of those things that we wanted to provide to those children.
+  // what we did here was instead of returning a React.Children.map of all the children and forwarding along the props
+  // by making clones of those children.
+  // and then we render the provider with the value of those things that we wanted to provide to those children.
   return (
     <ToggleContext.Provider value={{on, toggle}}>
       {children}
     </ToggleContext.Provider>
   )
 }
-
+// We added this checking here in our custom hook to ensure that when people are using any of these compound components,
+// they're using it within the provider component just to do a little bit of runtime validation for them.
 function useToggle() {
-  return React.useContext(ToggleContext)
+  const context = React.useContext(ToggleContext)
+  if (!context) {
+    throw new Error(`useToggle must be used within a <Toggle />`)
+  }
+  return context
 }
 // In each of the children, we consumed that context here so we can have access to that implicit state.
 function ToggleOn({children}) {
@@ -44,6 +49,8 @@ function ToggleButton({...props}) {
   return <Switch on={on} onClick={toggle} {...props} />
 }
 
+// const App = () => <ToggleButton />
+
 function App() {
   return (
     <div>
@@ -58,11 +65,10 @@ function App() {
   )
 }
 
-// A common question that I get here is, should I use the children.map function ability, 
-// or should I use the context functionality? What I say is you can absolutely use the context version all the time, 
+// A common question that I get here is, should I use the children.map function ability,
+// or should I use the context functionality? What I say is you can absolutely use the context version all the time,
 // but using the children.map functionality might be useful if you only care about direct descendants.
 // They're use cases for both of these methods.
-
 
 export default App
 
