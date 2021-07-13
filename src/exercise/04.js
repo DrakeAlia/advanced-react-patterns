@@ -9,9 +9,19 @@ function useToggle() {
   const toggle = () => setOn(!on)
 
   // 🐨 Add a property called `togglerProps`. It should be an object that has
-  // `aria-pressed` and `onClick` properties.
+  // `aria-pressed` and `onClick` properties. (X)
   // 💰 {'aria-pressed': on, onClick: toggle}
-  return {on, toggle}
+
+  // we get the toggler props, we spread that across the position of the props of our switch, 
+  // and we do the same for the props. Now, we have an accessible and working switch and toggle button.
+  return {
+    on,
+    toggle,
+    togglerProps: {
+      'aria-pressed': on,
+      onClick: toggle,
+    },
+  }
 }
 
 function App() {

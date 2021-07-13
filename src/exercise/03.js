@@ -17,7 +17,7 @@ function Toggle({children}) {
 
   // what we did here was instead of returning a React.Children.map of all the children and forwarding along the props
   // by making clones of those children.
-  // and then we render the provider with the value of those things that we wanted to provide to those children.
+  // Then we render the provider with the value of those things that we wanted to provide to those children.
   return (
     <ToggleContext.Provider value={{on, toggle}}>
       {children}
