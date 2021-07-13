@@ -19,11 +19,14 @@ function Toggle({children}) {
   // At least, it's implicit from the perspective of the users, 
   // and it's explicit from the perspective of this toggle component.
   return React.Children.map(children, child => {
+    if (typeof child.type === 'string') {
+      return child
+    }
     const newChild = React.cloneElement(child, {
       on,
       toggle,
     })
-    console.log(newChild)
+    // console.log(newChild)
     return newChild
   })
 }
@@ -43,6 +46,7 @@ function App() {
       <Toggle>
         <ToggleOn>The button is on</ToggleOn>
         <ToggleOff>The button is off</ToggleOff>
+        <span>Hello</span>
         <ToggleButton />
       </Toggle>
     </div>
