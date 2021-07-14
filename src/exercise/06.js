@@ -27,7 +27,8 @@ function toggleReducer(state, {type, initialState}) {
     }
   }
 }
-
+// We forward that on to our toggle function component, and then that forwards it on to the useToggle custom hook with
+// the option and the onChange option up here. 
 function useToggle({
   initialOn = false,
   reducer = toggleReducer,
@@ -36,30 +37,27 @@ function useToggle({
 } = {}) {
   const {current: initialState} = React.useRef({on: initialOn})
   const [state, dispatch] = React.useReducer(reducer, initialState)
-
+// Then with this onChange and this on, we use that on to control it on to determine whether or not on is controlled.
   const onIsControlled = controlledOn != null
-
+// If it is controlled, then we know that the user is trying to provide us with a value for that on, 
+// and that's where we're going to get the on for the rest of our custom hook here. 
+// If it's not, then we're going to manage that ourselves.
   const on = onIsControlled ? controlledOn : state.on
-
-  // We want to call `onChange` any time we need to make a state change, but we
-  // only want to call `dispatch` if `!onIsControlled` (otherwise we could get
-  // unnecessary renders).
-  // 🐨 To simplify things a bit, let's make a `dispatchWithOnChange` function
-  // right here. This will:
-  // 1. accept an action (X)
-  // 2. if onIsControlled is false, call dispatch with that action (X)
-  // 3. Then call `onChange` with our "suggested changes" and the action. (X)
-
+// we're going to first determine whether we're being controlled, and if that state is controlled, 
+// then we will not update our internally managed state for that particular element of state.
   function dispatchWithOnChange(action) {
-   if (!onIsControlled) {
-   dispatch(action) 
-   }
-  onChange?.(reducer({...state, on}, action), action)
+    if (!onIsControlled) {
+      dispatch(action)
+    }
+    // we want to make sure that we call this onChange handler with our suggested state change, 
+    // as well as the action that triggered the state change to give the consumers of this hook and 
+    // component as much information as they need to determine what they want to do with that suggested state change.
+    onChange?.(reducer({...state, on}, action), action)
   }
 
-
   const toggle = () => dispatchWithOnChange({type: actionTypes.toggle})
-  const reset = () => dispatchWithOnChange({type: actionTypes.reset, initialState})
+  const reset = () =>
+    dispatchWithOnChange({type: actionTypes.reset, initialState})
 
   function getTogglerProps({onClick, ...props} = {}) {
     return {
