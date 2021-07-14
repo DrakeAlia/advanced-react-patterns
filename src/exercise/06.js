@@ -48,6 +48,8 @@ function useControlledSwitchWarning(
   }, [controlPropName, componentName, isControlled, wasControlled])
 }
 
+// Just took the logic that we had before, extracted it into a function, and then parameterized a ton of stuff. 
+// Then we called in our function body for our custom hook.
 function useOnChangeReadOnlyWarrning(
   controlPropValue,
   controlPropName,
