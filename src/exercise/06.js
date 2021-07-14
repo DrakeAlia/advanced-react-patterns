@@ -42,11 +42,14 @@ function useToggle({
   const onIsControlled = controlledOn != null
   const on = onIsControlled ? controlledOn : state.on
 
-
+// To add to this warning for the controlled versus uncontrolled, we simply added this code right here, 
+// where we are creating a ref to keep track of whether we were controlled in the past. If we are controlled, 
+// and we weren't controlled before, then we want to issue this warning, or if we are not controlled, 
+// but we were before, then we'll issue this warning.
   const {current: onWasControlled} = React.useRef(onIsControlled)
   React.useEffect(() => {
     warning(
-      !(!onIsControlled && !onWasControlled),
+      !(onIsControlled && !onWasControlled),
       `\`useToggle\` is changing from uncontrolled to be controlled. Components should not switch from uncontrolled to controlled (or vice versa). Decide between using a controlled or uncontrolled \`useToggle\` for the lifetime of the component. Check the \`on\` prop.`,
     )
     warning(
