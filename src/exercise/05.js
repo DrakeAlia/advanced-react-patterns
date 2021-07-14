@@ -9,12 +9,20 @@ const callAll =
   (...args) =>
     fns.forEach(fn => fn?.(...args))
 
+    // All that we did here was we created an option for all of the different types for our actions. 
+    // We reference properties on that object instead of just using "strings" everywhere. 
+    // Then we exported that so that we could import it and use that in our custom state reducer.
+    const actionTypes = {
+      toggle: 'toggle',
+      reset: 'reset',
+    }
+
 function toggleReducer(state, {type, initialState}) {
   switch (type) {
-    case 'toggle': {
+    case actionTypes.toggle: {
       return {on: !state.on}
     }
-    case 'reset': {
+    case actionTypes.reset: {
       return initialState
     }
     default: {
@@ -31,8 +39,8 @@ function useToggle({initialOn = false, reducer = toggleReducer} = {}) {
   const [state, dispatch] = React.useReducer(reducer, initialState)
   const {on} = state
 
-  const toggle = () => dispatch({type: 'toggle'})
-  const reset = () => dispatch({type: 'reset', initialState})
+  const toggle = () => dispatch({type: actionTypes.toggle})
+  const reset = () => dispatch({type: actionTypes.reset, initialState})
 
   function getTogglerProps({onClick, ...props} = {}) {
     return {
@@ -66,7 +74,7 @@ function App() {
   // "If the actionType is toggle and I clicked too much, then I can return this right here." 
   // We'll move that up. Otherwise, I'll return the toggleReducer with that state and that action.
   function toggleStateReducer(state, action) {
-    if (action.type === 'toggle' && timesClicked >= 4) {
+    if (action.type === actionTypes.toggle && timesClicked >= 4) {
       return {on: state.on}
     }
     return toggleReducer(state, action)
