@@ -4,7 +4,10 @@
 import * as React from 'react'
 import {Switch} from '../switch'
 
-const callAll = (...fns) => (...args) => fns.forEach(fn => fn?.(...args))
+const callAll =
+  (...fns) =>
+  (...args) =>
+    fns.forEach(fn => fn?.(...args))
 
 function toggleReducer(state, {type, initialState}) {
   switch (type) {
@@ -19,14 +22,13 @@ function toggleReducer(state, {type, initialState}) {
     }
   }
 }
-
-// 🐨 add a new option called `reducer` that defaults to `toggleReducer`
-function useToggle({initialOn = false} = {}) {
+// all that we had to do to support this was to accept a reducer option for our custom hook and
+// default that to the toggle reducer. Then, rather than using the toggle reducer directly,
+// we used that reducer option, so if a user has passed a reducer, we're using theirs instead of our own,
+// and if they haven't, we're using our own.
+function useToggle({initialOn = false, reducer = toggleReducer} = {}) {
   const {current: initialState} = React.useRef({on: initialOn})
-  // 🐨 instead of passing `toggleReducer` here, pass the `reducer` that's
-  // provided as an option
-  // ... and that's it! Don't forget to check the 💯 extra credit!
-  const [state, dispatch] = React.useReducer(toggleReducer, initialState)
+  const [state, dispatch] = React.useReducer(reducer, initialState)
   const {on} = state
 
   const toggle = () => dispatch({type: 'toggle'})
