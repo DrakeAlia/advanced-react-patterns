@@ -1,7 +1,6 @@
 // Control Props
 // http://localhost:3000/isolated/exercise/06.js
 
-// then we created a React useEffect using the warning package.
 import * as React from 'react'
 import warning from 'warning'
 import {Switch} from '../switch'
@@ -29,9 +28,7 @@ function toggleReducer(state, {type, initialState}) {
     }
   }
 }
-// We forward that on to our toggle function component, and then that forwards it on to the useToggle custom hook with
-// the option and the onChange option up here.
-// Then we accepted that here, defaulted it to false. We determined whether we have an onChange with has onChange,
+
 function useToggle({
   initialOn = false,
   reducer = toggleReducer,
@@ -41,16 +38,23 @@ function useToggle({
 } = {}) {
   const {current: initialState} = React.useRef({on: initialOn})
   const [state, dispatch] = React.useReducer(reducer, initialState)
-  // Then with this onChange and this on, we use that on to control it on to determine whether or not on is controlled.
+
   const onIsControlled = controlledOn != null
-  // If it is controlled, then we know that the user is trying to provide us with a value for that on,
-  // and that's where we're going to get the on for the rest of our custom hook here.
-  // If it's not, then we're going to manage that ourselves.
   const on = onIsControlled ? controlledOn : state.on
 
-  // If this ends up being false, then we'll get this warning. If we do not have an onChange and
-  // we're in controlled mode for this on property and readOnly as false,
-  // then we'll provide this helpful warning message.
+
+  const {current: onWasControlled} = React.useRef(onIsControlled)
+  React.useEffect(() => {
+    warning(
+      !(!onIsControlled && !onWasControlled),
+      `\`useToggle\` is changing from uncontrolled to be controlled. Components should not switch from uncontrolled to controlled (or vice versa). Decide between using a controlled or uncontrolled \`useToggle\` for the lifetime of the component. Check the \`on\` prop.`,
+    )
+    warning(
+      !(!onIsControlled && onWasControlled),
+      `\`useToggle\` is changing from controlled to be uncontrolled. Components should not switch from controlled to uncontrolled (or vice versa). Decide between using a controlled or uncontrolled \`useToggle\` for the lifetime of the component. Check the \`on\` prop.`,
+    )
+  }, [onIsControlled, onWasControlled])
+
   const hasOnChange = Boolean(onChange)
   React.useEffect(() => {
     warning(
@@ -59,15 +63,11 @@ function useToggle({
     )
   }, [hasOnChange, onIsControlled, readOnly])
 
-  // we're going to first determine whether we're being controlled, and if that state is controlled,
-  // then we will not update our internally managed state for that particular element of state.
   function dispatchWithOnChange(action) {
     if (!onIsControlled) {
       dispatch(action)
     }
-    // we want to make sure that we call this onChange handler with our suggested state change,
-    // as well as the action that triggered the state change to give the consumers of this hook and
-    // component as much information as they need to determine what they want to do with that suggested state change.
+
     onChange?.(reducer({...state, on}, action), action)
   }
 
@@ -99,7 +99,6 @@ function useToggle({
   }
 }
 
-// we accepted a readOnly prop and forwarded that along to useToggle so we could support readOnly use cases.
 function Toggle({on: controlledOn, onChange, readOnly}) {
   const {on, getTogglerProps} = useToggle({
     on: controlledOn,
