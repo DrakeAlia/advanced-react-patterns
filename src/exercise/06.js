@@ -91,8 +91,26 @@ function useToggle({
   const onIsControlled = controlledOn != null
   const on = onIsControlled ? controlledOn : state.on
 
-  useControlledSwitchWarning(controlledOn, 'on', 'useToggle')
-  useOnChangeReadOnlyWarrning()
+  // In review, all that we had to do to make this magic happen is we added this check that is statically analyzable 
+  // by our Webpack configuration, where it can change this value to production. 
+  // At which time it says, "Oh, this can go away. Thanks to code minification." At which time, 
+  // it can say, "Oh, this can also go away, and this can also go away. Thanks to code minification."
+  if (process.env.NODE_ENV === 'production') {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useControlledSwitchWarning(controlledOn, 'on', 'useToggle')
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useOnChangeReadOnlyWarrning(
+      controlledOn,
+      'on',
+      'useToggle',
+      Boolean(onChange),
+      readOnly,
+      'readOnly',
+      'initialOn',
+      'onChange',
+      )
+  }
+
 
   function dispatchWithOnChange(action) {
     if (!onIsControlled) {
